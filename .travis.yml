@@ -1,0 +1,19 @@
+language: r
+cache:
+- packages
+sudo: required
+dist: "trusty"
+warnings_are_errors: false
+
+r_packages:
+  - covr
+  - devtools
+
+
+matrix:
+  include:
+  - r: devel
+  - r: release
+    after_success:
+    - R CMD INSTALL
+    - Rscript -e 'library(covr);codecov()'
