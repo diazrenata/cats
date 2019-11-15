@@ -4,7 +4,7 @@ output: github_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE)
 library(drake)
 library(dplyr)
 library(ggplot2)
@@ -40,9 +40,11 @@ maxima_plot
 
 ```
 
-The maximum statevars are `s0 = ` `r max(sv_maxima$max_s0)`; `n0 = ` `r max(sv_maxima$max_n0)`. There are a total of `r length(unique(sv_maxima$site))` sites (route-region combinations). 
+The maximum statevars are `r max(sv_maxima$max_s0)` species and `r max(sv_maxima$max_n0)` individuals. There are a total of `r length(unique(sv_maxima$site))` sites (route-region combinations). 
 
 I've made a p-table for these statevars by subsetting the `masterp_tall.Rds` from `diazrenata/scadsanalysis`. It'd probably take a day or so to sample from scratch.
+
+## Number of timesteps
 
 ```{r ntimesteps}
 
