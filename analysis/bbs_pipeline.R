@@ -4,19 +4,16 @@ library(cats)
 
 expose_imports(cats)
 
-bbs_dats <- build_bbs_datasets_plan(data_subset = NULL)
-sv_plan <- drake_plan(
+bbs_dats <- build_bbs_datasets_plan(data_subset = c(1:2))
+fs_plan <- drake_plan(
   spab = target(make_spab(dat, datname),
                 transform = map(dat=!!rlang::syms(bbs_dats$target),
                                 datname = !!bbs_dats$target)),
   s = target(add_singletons_ts(spab_ts = spab),
-             transform = map(spab)),
-  sv = target(get_statevars_ts(s),
-              transform = map(s)),
-  all_sv = target(dplyr::bind_rows(sv),
-                  transform = combine(sv)))
+             transform = map(spab))
+  )
 
-all <- dplyr::bind_rows(bbs_dats, sv_plan)
+all <- dplyr::bind_rows(bbs_dats, fs_plan)
 
 ## Set up the cache and config
 db <- DBI::dbConnect(RSQLite::SQLite(), here::here("analysis", "drake", "drake-cache-bbs.sqlite"))

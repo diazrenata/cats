@@ -25,7 +25,8 @@ make_spab <- function(matssdat, datname) {
                   site =site,
                   singletons = FALSE,
                   source = "observed",
-                  sim = -99)
+                  sim = -99) %>%
+    dplyr::select(-species)
 
   return(spab)
 }
@@ -76,7 +77,3 @@ add_singletons_ts <- function(spab_ts, use_max = TRUE) {
 
 }
 
-#
-# fs_ts_wrapper <- function(spab, nsamples, seed, p_table) {
-#
-# }

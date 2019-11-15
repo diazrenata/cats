@@ -4,7 +4,7 @@ test_that("load_dataset", {
     thisdat <- MATSS::get_bbs_route_region_data(route = 1, region = 11)
     spab <- make_spab(thisdat, datname = "bbs_data_rtrg_1_11")
     expect_true(is.data.frame(spab))
-    expect_true(ncol(spab) == 9)
+    expect_true(ncol(spab) == 8)
     expect_true(all(
       mode(spab$rank) == "numeric",
       mode(spab$abund) == "numeric",
@@ -13,8 +13,7 @@ test_that("load_dataset", {
       mode(spab$singletons) == "logical",
       mode(spab$sim) == "numeric",
       mode(spab$source) == "character",
-      mode(spab$timestep) == "numeric",
-      mode(spab$species) == "character"
+      mode(spab$timestep) == "numeric"
     ))
     expect_false(anyNA(spab))
 
