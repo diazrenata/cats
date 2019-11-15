@@ -1,16 +1,24 @@
-library(MATSS)
 library(drake)
 library(cats)
 
 expose_imports(cats)
 
-bbs_dats <- build_bbs_datasets_plan(data_subset = c(1:2))
+ndraws = 100
+set.seed(1977)
+
+bbs_dats <- MATSS::build_bbs_datasets_plan(data_subset = c(1:2))
 fs_plan <- drake_plan(
   spab = target(make_spab(dat, datname),
                 transform = map(dat=!!rlang::syms(bbs_dats$target),
-                                datname = !!bbs_dats$target)),
+                                datname = !!bbs_dats$target), hpc = T),
   s = target(add_singletons_ts(spab_ts = spab),
-             transform = map(spab))
+             transform = map(spab), hpc = T),
+  bbs_p = target(readRDS(here::here("analysis", "masterp_bbs.Rds"))),
+  results = target(fs_ts_wrapper(spab = s, nsamples = ndraws, seed = sample.int(10^4, size = 1), p_table = bbs_p),
+                   transform = map(s),
+                   hpc = T),
+  all_results = target(dplyr::bind_rows(results),
+                        transform = combine(results))
   )
 
 all <- dplyr::bind_rows(bbs_dats, fs_plan)

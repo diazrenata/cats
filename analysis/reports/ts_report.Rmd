@@ -1,0 +1,42 @@
+---
+title: "SV report"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(drake)
+library(dplyr)
+library(ggplot2)
+
+
+## Set up the cache and config
+db <- DBI::dbConnect(RSQLite::SQLite(), here::here("analysis", "drake", "drake-cache-bbs.sqlite"))
+cache <- storr::storr_dbi("datatable", "keystable", db)
+
+loadd(all_results, cache = cache)
+```
+
+## TS
+
+```{r plot ts}
+
+skew_ts <- ggplot(data = all_results, aes(x = timestep, y = skew_percentile, color = singletons)) +
+  geom_line() +
+  theme_bw() +
+  facet_wrap(vars(site)) +
+  scale_color_viridis_d(end =.8) +
+  ggtitle("Skew")
+skew_ts
+
+
+simpson_ts <- ggplot(data = all_results, aes(x = timestep, y = simpson_percentile, color = singletons)) +
+  geom_line() +
+  theme_bw() +
+  facet_wrap(vars(site)) +
+  scale_color_viridis_d(end =.8) +
+  ggtitle("Simpson")
+simpson_ts
+
+
+```
