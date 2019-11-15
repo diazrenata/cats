@@ -1,0 +1,43 @@
+---
+title: "SV report"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(drake)
+library(dplyr)
+library(ggplot2)
+
+
+## Set up the cache and config
+db <- DBI::dbConnect(RSQLite::SQLite(), here::here("analysis", "drake", "drake-cache-bbs.sqlite"))
+cache <- storr::storr_dbi("datatable", "keystable", db)
+
+loadd(all_sv, cache = cache)
+```
+
+## Maxima
+
+```{r plot maxima}
+
+sv_maxima <- all_sv %>%
+  group_by(site, singletons) %>%
+  summarize(max_s0 = max(s0),
+            max_n0 = max(n0)) %>%
+  ungroup()
+
+maxima_plot <- ggplot(data = sv_maxima, aes(x = max_s0, y = max_n0, color = site)) + 
+  geom_point() +
+  theme_bw() + 
+  xlim(0, max(all_sv$s0) + 5) +
+  ylim(0, max(all_sv$n0) + 5) +
+  scale_color_viridis_d(end =.9) +
+  facet_wrap(vars(singletons)) +
+  theme(legend.position = "none")
+  
+maxima_plot
+
+print(max(sv_maxima$max_s0))
+print(max(sv_maxima$max_n0))
+```
