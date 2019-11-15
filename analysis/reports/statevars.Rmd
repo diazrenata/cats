@@ -11,7 +11,7 @@ library(ggplot2)
 
 
 ## Set up the cache and config
-db <- DBI::dbConnect(RSQLite::SQLite(), here::here("analysis", "drake", "drake-cache-bbs.sqlite"))
+db <- DBI::dbConnect(RSQLite::SQLite(), here::here("analysis", "drake", "drake-cache-bbs-sv.sqlite"))
 cache <- storr::storr_dbi("datatable", "keystable", db)
 
 loadd(all_sv, cache = cache)
