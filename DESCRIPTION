@@ -29,5 +29,5 @@ Imports:
 Suggests: 
     testthat
 Remotes: 
-    diazrenata/scadsanalysis
+    diazrenata/scadsanalysis,
     weecology/MATSS
