@@ -1,9 +1,10 @@
 library(drake)
 library(cats)
+library(MATSS)
 
 expose_imports(cats)
 
-ndraws = 100
+ndraws = 2500
 set.seed(1977)
 
 

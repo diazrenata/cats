@@ -17,25 +17,43 @@ cache <- storr::storr_dbi("datatable", "keystable", db)
 loadd(all_results, cache = cache)
 ```
 
+## Nsamples
+
+The maximum number of samples is `r max(all_results$nsamples)`.
+
+```{r show nsamples}
+nsamples_hist <- ggplot(data = all_results, aes(x = nsamples)) +
+  geom_histogram(binwidth = 5) +
+  facet_wrap(vars(site, singletons), ncol = 2, scales = "free_y") +
+  xlim(-10, max(all_results$nsamples) + 10) +
+  theme_bw() +
+  ggtitle("Nsamples")
+nsamples_hist
+
+```
+
 ## TS
 
 ```{r plot ts}
 
-skew_ts <- ggplot(data = all_results, aes(x = timestep, y = skew_percentile, color = singletons)) +
+skew_ts <- ggplot(data = filter(all_results, nsamples == max(all_results$nsamples)), aes(x = timestep, y = skew_percentile, color = singletons)) +
   geom_line() +
   theme_bw() +
-  facet_wrap(vars(site)) +
+  facet_wrap(vars(site), ncol = 1) +
   scale_color_viridis_d(end =.8) +
-  ggtitle("Skew")
+  ggtitle("Skew") +
+  ylim(0, 100)
 skew_ts
 
 
-simpson_ts <- ggplot(data = all_results, aes(x = timestep, y = simpson_percentile, color = singletons)) +
+simpson_ts <- ggplot(data = filter(all_results, nsamples == max(all_results$nsamples)), aes(x = timestep, y = simpson_percentile, color = singletons)) +
   geom_line() +
   theme_bw() +
-  facet_wrap(vars(site)) +
+  facet_wrap(vars(site), ncol = 1) +
   scale_color_viridis_d(end =.8) +
-  ggtitle("Simpson")
+  ggtitle("Simpson") +
+    ylim(0, 100)
+
 simpson_ts
 
 

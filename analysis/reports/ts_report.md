@@ -1,6 +1,15 @@
 SV report
 ================
 
+Nsamples
+--------
+
+The maximum number of samples is 100.
+
+    ## Warning: Removed 12 rows containing missing values (geom_bar).
+
+![](ts_report_files/figure-markdown_github/show%20nsamples-1.png)
+
 TS
 --
 
