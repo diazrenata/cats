@@ -17,8 +17,9 @@ set.seed(1977)
 #                 transform = map(route = !!rts, region = !!rgs))
 # )
 
-bbs_dats <- MATSS::build_bbs_datasets_plan(data_subset = c(1, 410, 1977))
+#bbs_dats <- MATSS::build_bbs_datasets_plan(data_subset = c(1, 410, 1977))
 
+bbs_dats <- MATSS::build_bbs_datasets_plan(data_subset = c(1:10, 410:420, 1977:1987))
 
 fs_plan <- drake_plan(
   spab = target(make_spab(dat, datname),
