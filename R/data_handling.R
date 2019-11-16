@@ -1,3 +1,27 @@
+#' Get toy BBS data
+#'
+#' Load one of 3 BBS route-regions packaged with `cats`. For tests and method development, avoids needing MATSS fully functional.
+#'
+#' Currently, the options are (rt/rg): 1/11, 268/8, 314/27. These are datasets 1, 410, and 1977 if you run MATSS::build_bbs_datasets_plan. Those are arbitrary numbers chosen to be memorable and disperseed throughout the database (1, our parking space, the first year of Portal).
+#'
+#' @param route int route
+#' @param region int region
+#' @param from_retriever t/f
+#'
+#' @return MATSS packaged dataset
+#' @export
+#' @importFrom MATSS get_bbs_route_region_data
+get_toy_bbs_data <- function(route = 1, region = 11, from_retriever = F) {
+  if(from_retriever) {
+    dat <- MATSS::get_bbs_route_region_data(route, region)
+  } else {
+    inst_path = file.path(system.file(package= "cats"), "toy_bbs_data")
+    dat <- readRDS(file.path(inst_path, paste0("route", route, "_region", region, ".Rds")))
+  }
+  return(dat)
+}
+
+
 #' Make spab table from MATSS dataset
 #'
 #' @param matssdat dataset as imported from MATSS

@@ -1,7 +1,7 @@
 context("Check that data handling is okay")
 
 test_that("load_dataset", {
-    thisdat <- MATSS::get_bbs_route_region_data(route = 1, region = 11)
+    thisdat <- get_toy_bbs_data(route = 1, region = 11)
     spab <- make_spab(thisdat, datname = "bbs_data_rtrg_1_11")
     expect_true(is.data.frame(spab))
     expect_true(ncol(spab) == 8)
@@ -20,7 +20,7 @@ test_that("load_dataset", {
 })
 
 test_that("add_singletons", {
-  thisdat <- MATSS::get_bbs_route_region_data(route = 1, region = 11)
+  thisdat <- get_toy_bbs_data(route = 1, region = 11)
   spab <- make_spab(thisdat, datname = "bbs_data_rtrg_1_11")
   s_spab <- add_singletons_ts(spab)
 
@@ -38,7 +38,7 @@ test_that("add_singletons", {
 
 
 test_that("get statevars", {
-  thisdat <- MATSS::get_bbs_route_region_data(route = 1, region = 11)
+  thisdat <- get_toy_bbs_data(route = 1, region = 11)
   spab <- make_spab(thisdat, datname = "bbs_data_rtrg_1_11")
   s_spab <- add_singletons_ts(spab)
 

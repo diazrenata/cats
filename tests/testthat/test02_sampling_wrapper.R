@@ -1,7 +1,7 @@
 context("Check that sampling is okay")
 
 test_that("sampling runs", {
-  thisdat <- MATSS::get_bbs_route_region_data(route = 1, region = 11)
+  thisdat <- get_toy_bbs_data(route = 1, region = 11)
   spab <- make_spab(thisdat, datname = "bbs_data_rtrg_1_11")
   s_spab <- add_singletons_ts(spab)
 
