@@ -8,6 +8,7 @@ knitr::opts_chunk$set(echo = FALSE)
 library(drake)
 library(dplyr)
 library(ggplot2)
+library(cats)
 
 
 ## Set up the cache and config
@@ -15,6 +16,21 @@ db <- DBI::dbConnect(RSQLite::SQLite(), here::here("analysis", "drake", "drake-c
 cache <- storr::storr_dbi("datatable", "keystable", db)
 
 loadd(all_results, cache = cache)
+
+alldat <- as.list(cached(cache = cache)[ which(substr(cached(cache = cache), 0, 6) == "s_spab")])
+alldat <- lapply(alldat, FUN = readd, cache = cache, character_only = T)
+allsv <- lapply(alldat, FUN = get_statevars_ts)
+allsv <- bind_rows(allsv)
+
+all_results <- left_join(all_results, allsv, by = c("site", "singletons", "dat", "source", "sim", "timestep"))
+
+all_results <- all_results %>%
+  group_by(site, singletons, dat, source) %>%
+  mutate(mean_skew = mean(skew_percentile),
+         sd_skew = sd(skew_percentile),
+         mean_simpson = mean(simpson_percentile),
+         sd_simpson = sd(simpson_percentile)) %>%
+  ungroup()
 ```
 
 ## Nsamples
@@ -36,25 +52,44 @@ nsamples_hist
 
 ```{r plot ts}
 
-skew_ts <- ggplot(data = filter(all_results, nsamples == max(all_results$nsamples)), aes(x = timestep, y = skew_percentile, color = singletons)) +
+s0_ts <- ggplot(data = filter(all_results, nsamples == max(all_results$nsamples)), aes(x = timestep, y = s0, color = singletons)) + 
   geom_line() +
   theme_bw() +
   facet_wrap(vars(site), ncol = 1) +
   scale_color_viridis_d(end =.8) +
+  ggtitle("S") +
+  theme(legend.position = "none")
+
+
+skew_ts <- ggplot(data = filter(all_results, nsamples == max(all_results$nsamples)), aes(x = timestep, y = skew_percentile, color = singletons, group = singletons)) +
+  geom_line() +
+  geom_label(aes(x = 1980, y = 50, label = signif(mean_skew, 3)), position = position_dodge(15)) +
+    geom_label(aes(x = 1980, y = 15, label = signif(sd_skew, 2)), position = position_dodge(15), size = 3) +
+theme_bw() +
+  facet_wrap(vars(site), ncol = 1) +
+  scale_color_viridis_d(end =.8) +
   ggtitle("Skew") +
-  ylim(0, 100)
-skew_ts
+  ylim(0, 100)+
+  theme(legend.position = "none")
+
+gridExtra::grid.arrange(grobs = list(skew_ts, s0_ts), ncol = 2)
 
 
 simpson_ts <- ggplot(data = filter(all_results, nsamples == max(all_results$nsamples)), aes(x = timestep, y = simpson_percentile, color = singletons)) +
   geom_line() +
   theme_bw() +
+    geom_label(aes(x = 1980, y = 50, label = signif(mean_simpson, 3)), position = position_dodge(25)) +
+      geom_label(aes(x = 1980, y = 15, label = signif(sd_simpson, 2)), position = position_dodge(25), size = 3) +
+
   facet_wrap(vars(site), ncol = 1) +
   scale_color_viridis_d(end =.8) +
   ggtitle("Simpson") +
-    ylim(0, 100)
+    ylim(0, 100)+
+  theme(legend.position = "none")
 
-simpson_ts
+
+gridExtra::grid.arrange(grobs = list(simpson_ts, s0_ts), ncol = 2)
+
 
 
 ```

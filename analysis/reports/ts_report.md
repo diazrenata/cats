@@ -4,7 +4,7 @@ SV report
 Nsamples
 --------
 
-The maximum number of samples is 100.
+The maximum number of samples is 2500.
 
     ## Warning: Removed 12 rows containing missing values (geom_bar).
 
