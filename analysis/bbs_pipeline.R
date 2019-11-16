@@ -6,7 +6,15 @@ expose_imports(cats)
 ndraws = 100
 set.seed(1977)
 
-bbs_dats <- MATSS::build_bbs_datasets_plan(data_subset = c(1:2))
+#bbs_dats <- MATSS::build_bbs_datasets_plan(data_subset = c(1:2))
+rts <- c(1, 268, 314)
+rgs <- c(11, 8, 27)
+
+bbs_dats <- drake_plan(
+  bbs_data_rtrg = target(get_toy_bbs_data(route, region),
+                transform = map(route = !!rts, region = !!rgs))
+)
+
 fs_plan <- drake_plan(
   spab = target(make_spab(dat, datname),
                 transform = map(dat=!!rlang::syms(bbs_dats$target),
