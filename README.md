@@ -2,7 +2,7 @@
 
  <!-- badges: start -->
   [![Travis build status](https://travis-ci.org/diazrenata/cats.svg?branch=master)](https://travis-ci.org/diazrenata/cats)
-   [![codecov](https://codecov.io/gh/diazrenata/scadsanalysis/branch/master/graph/badge.svg)](https://codecov.io/gh/diazrenata/cats)
+   [![codecov](https://codecov.io/gh/diazrenata/cats/branch/master/graph/badge.svg)](https://codecov.io/gh/diazrenata/cats)
   <!-- badges: end -->
   
 Constrained abundance over timeseries.
