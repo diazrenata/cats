@@ -29,7 +29,13 @@ all_results <- all_results %>%
   mutate(mean_skew = mean(skew_percentile),
          sd_skew = sd(skew_percentile),
          mean_simpson = mean(simpson_percentile),
-         sd_simpson = sd(simpson_percentile)) %>%
+         sd_simpson = sd(simpson_percentile),
+         med_skew = median(skew_percentile),
+         med_simpson = median(simpson_percentile),
+         iqr_skew = IQR(skew_percentile),
+         iqr_simpson = IQR(simpson_percentile),
+         skew_high = 100 * mean(skew_percentile >= 95),
+         simpson_low = 100*mean(simpson_percentile <= 5)) %>%
   ungroup()
 ```
 
@@ -37,20 +43,21 @@ all_results <- all_results %>%
 
 The maximum number of samples is `r max(all_results$nsamples)`.
 
-```{r show nsamples}
+The minimum number of samples is `r min(all_results$nsamples)`.
+
+```{r show nsamples, fig.height = 40}
 nsamples_hist <- ggplot(data = all_results, aes(x = nsamples)) +
   geom_histogram(binwidth = 5) +
   facet_wrap(vars(site, singletons), ncol = 2, scales = "free_y") +
   xlim(-10, max(all_results$nsamples) + 10) +
   theme_bw() +
   ggtitle("Nsamples")
-nsamples_hist
+#nsamples_hist
 
 ```
 
-## TS
 
-```{r plot ts}
+```{r plot ts, fig.height = 36}
 
 s0_ts <- ggplot(data = filter(all_results, nsamples == max(all_results$nsamples)), aes(x = timestep, y = s0, color = singletons)) + 
   geom_line() +
@@ -64,32 +71,124 @@ s0_ts <- ggplot(data = filter(all_results, nsamples == max(all_results$nsamples)
 skew_ts <- ggplot(data = filter(all_results, nsamples == max(all_results$nsamples)), aes(x = timestep, y = skew_percentile, color = singletons, group = singletons)) +
   geom_line() +
   geom_label(aes(x = 1980, y = 50, label = signif(mean_skew, 3)), position = position_dodge(15)) +
-    geom_label(aes(x = 1980, y = 15, label = signif(sd_skew, 2)), position = position_dodge(15), size = 3) +
-theme_bw() +
+  geom_label(aes(x = 1980, y = 15, label = signif(sd_skew, 2)), position = position_dodge(15), size = 3) +
+  theme_bw() +
   facet_wrap(vars(site), ncol = 1) +
   scale_color_viridis_d(end =.8) +
   ggtitle("Skew") +
   ylim(0, 100)+
   theme(legend.position = "none")
 
-gridExtra::grid.arrange(grobs = list(skew_ts, s0_ts), ncol = 2)
+# gridExtra::grid.arrange(grobs = list(skew_ts, s0_ts), ncol = 2)
 
 
 simpson_ts <- ggplot(data = filter(all_results, nsamples == max(all_results$nsamples)), aes(x = timestep, y = simpson_percentile, color = singletons)) +
   geom_line() +
   theme_bw() +
-    geom_label(aes(x = 1980, y = 50, label = signif(mean_simpson, 3)), position = position_dodge(25)) +
-      geom_label(aes(x = 1980, y = 15, label = signif(sd_simpson, 2)), position = position_dodge(25), size = 3) +
-
+  geom_label(aes(x = 1980, y = 50, label = signif(mean_simpson, 3)), position = position_dodge(25)) +
+  geom_label(aes(x = 1980, y = 15, label = signif(sd_simpson, 2)), position = position_dodge(25), size = 3) +
+  
   facet_wrap(vars(site), ncol = 1) +
   scale_color_viridis_d(end =.8) +
   ggtitle("Simpson") +
-    ylim(0, 100)+
+  ylim(0, 100)+
   theme(legend.position = "none")
 
 
-gridExtra::grid.arrange(grobs = list(simpson_ts, s0_ts), ncol = 2)
+# gridExtra::grid.arrange(grobs = list(simpson_ts, s0_ts), ncol = 2)
 
 
+
+```
+
+## Percentile values by site
+
+These are histograms of the skewness/simpson's percentile values of all years for each site. The purple dots are the x-value (percentile value) for 2009. 
+
+Questions here are: 
+
+1. How pointy/broad are these histograms? (More rigorous metrics later, this is just a gestalt)
+2. Is 2009 generally an outlier, or not?
+
+
+```{r percentile hists, fig.width = 10, fig.height = 12}
+
+
+skew_hist <- ggplot(data = filter(all_results, !singletons), aes(x = skew_percentile)) +
+  geom_histogram(binwidth = 5, pad = T) +
+ # geom_label(aes(x = 10, y = 5, label = round(skew_high, digits = 1))) +
+  geom_point(data = filter(all_results, !singletons, timestep == 2009), aes(x = skew_percentile, y = 5), color = "purple") +
+  theme_bw() +
+  facet_wrap(vars(site))
+skew_hist
+
+
+simpson_hist <- ggplot(data = filter(all_results, !singletons), aes(x = simpson_percentile)) +
+  geom_histogram(binwidth = 5, pad = T) +
+#  geom_label(aes(x = 10, y = 5, label = round(simpson_low, digits = 1))) +
+    geom_point(data = filter(all_results, !singletons, timestep == 2009), aes(x = simpson_percentile, y = 5), color = "purple") +
+
+  theme_bw() +
+  facet_wrap(vars(site))
+simpson_hist
+
+```
+
+My gleanings from these:
+
+1. 2009 is not particularly weird, but there is a lot of variation that you simply won't capture by pulling out one year.
+2. Simpson's is consistently more extreme than skewness; this is consistent with scadsplants, scadsanalysis.
+3. This needs to be addressed more rigorously, but it *looks* like sites with more extreme centers-of-mass have less general variation than sites that do not? This is probably constrained because the percentile scale has hard ends at 0 and 100. 
+
+```{r summary hists}
+
+summary_results <- all_results %>%
+  filter(!singletons) %>%
+  select(site, mean_skew, mean_simpson, skew_high, simpson_low) %>%
+  distinct() %>%
+  group_by(site) %>%
+  mutate(mean_skew_high = mean(skew_high),
+         mean_simpson_low = mean(simpson_low)) %>%
+  ungroup()
+
+skew_summ_hist <- ggplot(data = summary_results, aes(x = mean_skew)) +
+  geom_histogram(boundary = 0, binwidth = 5) +
+  geom_label(aes(x = 40, y = 5, label = paste0("Mean prop of years with skew >= 95: ", round(mean(mean_skew_high), digits = 1)))) +
+  theme_bw()
+
+skew_summ_hist
+
+simpson_summ_hist <- ggplot(data = summary_results, aes(x = mean_simpson)) +
+  geom_histogram(boundary = 0, binwidth = 5) +
+  geom_label(aes(x = 40, y = 5, label = paste0("Mean prop of years with simpson <= 5: ", round(mean(mean_simpson_low), digits = 1)))) +
+  theme_bw()
+
+simpson_summ_hist
+```
+
+
+
+```{r whiskers, fig.height = 10}
+
+skew_whiskers <- ggplot(data = filter(all_results, !singletons), aes(x = as.factor(med_skew), y = skew_percentile)) +
+  geom_boxplot() +
+  geom_point(data = filter(all_results, !singletons, timestep == 2009), color = "purple", aes(x = as.factor(med_skew), y = skew_percentile), size= 1, alpha= .5)  +
+  coord_flip() +
+  theme_bw() +
+  ggtitle("Skew med v IQR")
+
+
+#skew_whiskers
+
+
+simpson_whiskers <- ggplot(data = filter(all_results, !singletons), aes(x = as.factor(med_simpson), y = simpson_percentile)) +
+  geom_boxplot() +
+  geom_point(data = filter(all_results, !singletons, timestep == 2009), color = "purple", aes(x = as.factor(med_simpson), y = simpson_percentile), size= 1, alpha= .5)  +
+  coord_flip() +
+  theme_bw() +
+  ggtitle("Simpson med v IQR")
+
+
+#simpson_whiskers
 
 ```
