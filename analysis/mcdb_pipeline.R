@@ -8,7 +8,7 @@ ndraws = 2500
 set.seed(1977)
 
 
-#mcdb_sites <- list_mcdb_sites()[1:10]
+mcdb_sites <- list_mcdb_sites()
 
 all <- drake_plan(
   spab = target(get_mcdb_spab(mcdb_site = site),
