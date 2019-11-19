@@ -5,4 +5,5 @@ analysis/drake/*
 *.drake*
 .DS_Store
 *.DS_Store
-#analysis/masterp_bbs.Rds
+analysis/masterp_bbs.Rds
+analysis/masterp_mamm.Rds
